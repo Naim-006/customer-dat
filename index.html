@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Management System</title>
+  <style>
+    /* General styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 2em;
+      color: #333;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    form label {
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+
+    form input,
+    form select {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    form input[type="submit"] {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 15px;
+      font-size: 18px;
+    }
+
+    form input[type="submit"]:hover {
+      background-color: #218838;
+    }
+
+    #searchResults {
+      margin-top: 20px;
+    }
+
+    #searchResults table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    #searchResults th, #searchResults td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    #searchResults th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    #searchResults tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    #printBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #ffc107;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #printBtn:hover {
+      background-color: #e0a800;
+    }
+
+    #pinProtection {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #pinProtection div {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    #pinProtection input {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    #pinProtection button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #pinProtection button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Print-specific styles */
+    @media print {
+      body {
+        background-color: #fff;
+        color: #000;
+      }
+
+      .container {
+        box-shadow: none;
+        border-radius: 0;
+        margin: 0;
+        padding: 0;
+      }
+
+      header h1 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+      }
+
+      button, #printBtn {
+        display: none;
+      }
+
+      #searchResults table {
+        width: 100%;
+        border: 1px solid #000;
+        border-collapse: collapse;
+      }
+
+      #searchResults th, #searchResults td {
+        border: 1px solid #000;
+        padding: 8px;
+      }
+
+      #searchResults th {
+        background-color: #eee;
+        color: #000;
+      }
+
+      #searchResults tr:nth-child(even) {
+        background-color: #f0f0f0;
+      }
+
+      @page {
+        size: A4;
+        margin: 20mm;
+      }
+
+      .container::after {
+        content: "";
+        display: block;
+        clear: both;
+      }
+
+      .container h2 {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+      }
+
+      .container form {
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="pinProtection">
+    <div>
+      <h2>Enter PIN</h2>
+      <input type="password" id="pinInput" placeholder="Enter PIN">
+      <button onclick="checkPin()">Submit</button>
+    </div>
+  </div>
+  
+  <div class="container">
+    <header>
+      <h1>Customer Management System</h1>
+    </header>
+    
+    <center>
+      <div id="buttons">
+        <button onclick="showEntryForm()">Entry</button>
+        <button onclick="showEnquiryForm()">Enquiry</button>
+      </div>
+    </center>
+    
+    <div id="entryForm" style="display: none;">
+      <h2>Customer Entry</h2>
+      <form id="entry">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        
+        <label for="phone">Phone:</label>
+        <input type="text" id="phone" name="phone" required>
+        
+        <label for="eyePower">Eye Power:</label>
+        <input type="text" id="eyePower" name="eyePower">
+        
+        <label for="lastSell">Last Sale Date:</label>
+        <input type="date" id="lastSell" name="lastSell">
+        
+        <input type="submit" value="Save">
+      </form>
+    </div>
+    
+    <div id="enquiryForm" style="display: none;">
+      <h2>Customer Enquiry</h2>
+      <label for="search">Search:</label>
+      <input type="text" id="search" name="search" oninput="searchCustomer()">
+      
+      <div id="searchResults">
+        <!-- Search results will be displayed here -->
+      </div>
+      
+      <button id="printBtn" onclick="printResults()">Print Results</button>
+    </div>
+  </div>
+  
+  <script>
+    // PIN Protection
+    function checkPin() {
+      const pin = document.getElementById('pinInput').value;
+      if (pin === '1234') { // Replace with your actual PIN
+        document.getElementById('pinProtection').style.display = 'none';
+      } else {
+        alert('Incorrect PIN');
+      }
+    }
+
+    // Form Display Functions
+    function showEntryForm() {
+      document.getElementById('entryForm').style.display = 'block';
+      document.getElementById('enquiryForm').style.display = 'none';
+    }
+
+    function showEnquiryForm() {
+      document.getElementById('entryForm').style.display = 'none';
+      document.getElementById('enquiryForm').style.display = 'block';
+    }
+
+    // Handle Form Submission
+    document.getElementById('entry').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+      
+      // Store data in local storage
+      let customers = JSON.parse(localStorage.getItem('customers')) || [];
+      data.id = `C${customers.length + 1}`; // Auto-generate ID
+      customers.push(data);
+      localStorage.setItem('customers', JSON.stringify(customers));
+      
+      alert('Customer data saved successfully!');
+      document.getElementById('entry').reset();
+    });
+
+    // Search Function
+    function searchCustomer() {
+      const searchValue = document.getElementById('search').value.toLowerCase();
+      let customers = JSON.parse(localStorage.getItem('customers')) || [];
+      let filteredCustomers = customers.filter(customer => 
+        customer.name.toLowerCase().includes(searchValue) ||
+        customer.phone.includes(searchValue)
+      );
+
+      displayResults(filteredCustomers);
+    }
+
+    // Display Search Results
+    function displayResults(customers) {
+      const resultsContainer = document.getElementById('searchResults');
+      resultsContainer.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Eye Power</th>
+              <th>Last Sale Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${customers.map(customer => `
+              <tr>
+                <td>${customer.id}</td>
+                <td>${customer.name}</td>
+                <td>${customer.phone}</td>
+                <td>${customer.eyePower}</td>
+                <td>${customer.lastSell}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // Print Function
+    function printResults() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
